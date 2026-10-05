@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Compras</title>
+<meta name="theme-color" content="#D97757">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Lista de Compras">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23D97757'/%3E%3Cg transform='translate(-7 -8.5)'%3E%3Cpath d='M30 32 L34 32 L40 66 Q41 70 45 70 L74 70 Q78 70 79 66 L84 42 L38 42' fill='none' stroke='%23FCFBF8' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='48' cy='80' r='5' fill='%23FCFBF8'/%3E%3Ccircle cx='71' cy='80' r='5' fill='%23FCFBF8'/%3E%3C/g%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%23D97757'/%3E%3Cg transform='translate(-7 -8.5)'%3E%3Cpath d='M30 32 L34 32 L40 66 Q41 70 45 70 L74 70 Q78 70 79 66 L84 42 L38 42' fill='none' stroke='%23FCFBF8' stroke-width='5.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='48' cy='80' r='5' fill='%23FCFBF8'/%3E%3Ccircle cx='71' cy='80' r='5' fill='%23FCFBF8'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg: #F7F4EE;
+    --card: #FFFFFF;
+    --ink: #2C2A24;
+    --muted: #7A7768;
+    --sage: #D97757;
+    --sage-dark: #BD5F3E;
+    --clay: #C9714A;
+    --warn: #D89A3A;
+    --danger: #C1523E;
+    --health-yes: #4C7A5B;
+    --health-no: #C1523E;
+    --health-neutral: #D89A3A;
+    --line: #E7E2D6;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    padding: 20px 16px 90px;
+    max-width: 480px;
+    margin-inline: auto;
+    position: relative;
+  }
+  h1 { font-size: 1.7rem; font-weight: 800; margin: 4px 0 2px; letter-spacing: -0.03em; display: flex; align-items: center; gap: 9px; }
+  .app-logo { width: 34px; height: 34px; border-radius: 9px; flex-shrink: 0; }
+  .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 18px; }
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px;
+    border: 1px solid var(--line);
+    margin-bottom: 16px;
+  }
+  .budget-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; }
+  .budget-row label { font-size: 0.8rem; color: var(--muted); }
+  .budget-input {
+    border: none; background: transparent; font-size: 1rem; font-weight: 600;
+    text-align: right; width: 110px; color: var(--ink);
+    border-bottom: 1px dashed var(--line); padding: 2px 0;
+  }
+  .remaining { font-size: 2.2rem; font-weight: 800; line-height: 1.1; margin: 6px 0 2px; letter-spacing: -0.02em; }
+  .remaining.ok { color: var(--sage-dark); }
+  .remaining.warn { color: var(--warn); }
+  .remaining.over { color: var(--danger); }
+  .remaining-label { color: var(--muted); font-size: 0.85rem; margin-bottom: 10px; }
+  .bar-track { height: 10px; background: #EFEAE0; border-radius: 6px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 6px; transition: width 0.35s ease, background 0.35s ease; }
+  .totals-line { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); margin-top: 8px; }
+
+  .tab-nav { display: flex; gap: 6px; background: #EFEAE0; border-radius: 12px; padding: 4px; margin-bottom: 18px; }
+  .tab-btn {
+    flex: 1; background: none; padding: 10px 0; border-radius: 9px;
+    font-size: 0.9rem; font-weight: 600; color: var(--muted);
+  }
+  .tab-btn.active { background: var(--card); color: var(--sage-dark); box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .compare-card h2 { font-size: 0.95rem; font-weight: 700; margin: 0 0 12px; }
+  .compare-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .compare-label { font-size: 0.85rem; color: var(--muted); }
+  .compare-value { font-weight: 700; font-size: 0.95rem; }
+  .compare-diff { font-size: 0.85rem; font-weight: 600; margin-top: 8px; padding-top: 10px; border-top: 1px solid var(--line); }
+  .compare-diff.up { color: var(--danger); }
+  .compare-diff.down { color: var(--sage-dark); }
+  .compare-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 6px 0; }
+
+  .summary-card h2, .health-card h2 { font-size: 0.95rem; font-weight: 700; margin: 0 0 12px; }
+  .summary-row { margin-bottom: 12px; }
+  .summary-row:last-child { margin-bottom: 0; }
+  .summary-row-top { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px; }
+  .summary-row-top .s-name { font-weight: 600; }
+  .summary-row-top .s-value { color: var(--muted); }
+  .summary-bar-track { height: 9px; background: #EFEAE0; border-radius: 5px; overflow: hidden; }
+  .summary-bar-fill { height: 100%; border-radius: 5px; transition: width 0.35s ease; }
+  .summary-empty { text-align: center; color: var(--muted); font-size: 0.85rem; padding: 6px 0; }
+
+  .add-form { display: flex; flex-direction: column; gap: 10px; }
+  .add-row { display: flex; gap: 8px; }
+  input[type="text"], input[type="number"], select, textarea {
+    font-family: inherit; font-size: 0.95rem; padding: 11px 12px;
+    border-radius: 10px; border: 1px solid var(--line);
+    background: #FCFBF8; color: var(--ink); width: 100%;
+  }
+  .add-row .name-field { flex: 1; }
+  .qty-field { max-width: 74px; }
+  .unit-field { max-width: 86px; }
+  .price-field { max-width: 110px; }
+  .price-field-wide { flex: 1; }
+  select.cat-select { flex: 1; }
+  .field-label { font-size: 0.72rem; color: var(--muted); margin-bottom: 3px; display: block; }
+  .field-col { display: flex; flex-direction: column; }
+  .toggle-desc {
+    background: none; color: var(--sage-dark); font-size: 0.82rem;
+    font-weight: 600; padding: 4px 0; text-align: left; width: fit-content;
+  }
+  .desc-wrap { display: none; }
+  .desc-wrap.open { display: block; }
+
+  .item-preview {
+    display: none;
+    align-items: center;
+    gap: 10px;
+    background: #F1ECE0;
+    border-radius: 10px;
+    padding: 8px 12px;
+    margin-top: -2px;
+  }
+  .item-preview.show { display: flex; }
+  .item-preview-emoji { font-size: 1.6rem; line-height: 1; }
+  .item-preview-label { font-size: 0.85rem; color: var(--sage-dark); font-weight: 600; }
+
+  .health-row { display: flex; gap: 8px; }
+  .health-pill {
+    flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px;
+    padding: 9px 4px; border-radius: 10px; border: 1.5px solid var(--line);
+    background: #FCFBF8; font-size: 0.72rem; font-weight: 700; color: var(--muted);
+  }
+  .health-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-left: 6px; vertical-align: middle; }
+  .health-pill.selected.saudavel { border-color: var(--health-yes); background: #E9F1EA; color: var(--health-yes); }
+  .health-pill.selected.neutro { border-color: var(--health-neutral); background: #FBF1E0; color: #96701F; }
+  .health-pill.selected.nao_saudavel { border-color: var(--health-no); background: #FBEAE6; color: var(--health-no); }
+
+
+  .health-summary-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .health-summary-row:last-child { margin-bottom: 0; }
+  .health-summary-dot { display: inline-block; width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; }
+  .health-summary-body { flex: 1; }
+  .health-summary-top { display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px; }
+  .health-summary-top .h-name { font-weight: 700; }
+  .health-summary-top .h-value { color: var(--muted); }
+  .health-bar-track { height: 9px; background: #EFEAE0; border-radius: 5px; overflow: hidden; }
+  .health-bar-fill { height: 100%; border-radius: 5px; transition: width 0.35s ease; }
+
+  .actions-row { display: flex; gap: 8px; }
+  button { font-family: inherit; cursor: pointer; border: none; }
+  .btn-add { width: 100%; background: var(--sage); color: #fff; font-weight: 700; font-size: 0.95rem; padding: 13px; border-radius: 10px; transition: background 0.15s ease; }
+  .btn-add:active { background: var(--sage-dark); }
+  .btn-mic {
+    width: 48px; height: 48px; border-radius: 50%; background: #F1ECE0; color: var(--sage-dark);
+    font-size: 1.2rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    transition: background 0.15s ease, transform 0.15s ease;
+  }
+  .btn-mic.listening { background: var(--clay); color: #fff; animation: pulse 1.1s infinite; }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(201,113,74,0.45); }
+    70% { box-shadow: 0 0 0 12px rgba(201,113,74,0); }
+    100% { box-shadow: 0 0 0 0 rgba(201,113,74,0); }
+  }
+  .mic-hint { font-size: 0.78rem; color: var(--muted); text-align: center; min-height: 16px; }
+
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .list-header h2 { font-size: 1.05rem; font-weight: 800; margin: 0; letter-spacing: -0.01em; }
+  .clear-checked { font-size: 0.78rem; color: var(--danger); background: none; padding: 4px; }
+
+  .export-bar { margin-bottom: 16px; }
+  .btn-export {
+    width: 100%; background: var(--sage-dark); color: #fff; font-weight: 600;
+    font-size: 0.92rem; padding: 13px; border-radius: 10px;
+  }
+  .btn-export:active { background: var(--sage); }
+
+  .group-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--line); margin-bottom: 12px; overflow: hidden; }
+  .group-head { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; cursor: pointer; }
+  .group-name { font-weight: 800; font-size: 1rem; letter-spacing: -0.01em; }
+  .group-total { font-weight: 700; font-size: 0.95rem; color: var(--sage-dark); }
+  .group-chevron { color: var(--muted); transition: transform 0.2s ease; font-size: 0.8rem; margin-left: 6px; }
+  .group-chevron.open { transform: rotate(180deg); }
+  .group-body { display: none; padding: 0 16px 12px; }
+  .group-body.open { display: block; }
+
+  .subgroup { margin-bottom: 10px; }
+  .subgroup:last-child { margin-bottom: 0; }
+  .subgroup-head { display: flex; justify-content: space-between; font-size: 0.82rem; color: var(--muted); font-weight: 600; padding: 6px 0 4px; border-top: 1px solid var(--line); }
+  .subgroup:first-child .subgroup-head { border-top: none; }
+  .subgroup-total { color: var(--clay); font-weight: 700; }
+
+  .item-wrap { border-bottom: 1px solid var(--line); }
+  .item-wrap:last-child { border-bottom: none; }
+  .item-wrap.dragging { position: relative; z-index: 20; background: var(--card); box-shadow: 0 6px 16px rgba(0,0,0,0.15); border-radius: 8px; }
+  .item-wrap.drag-placeholder { opacity: 0.35; }
+  .drag-handle { color: var(--muted); flex-shrink: 0; padding: 2px; touch-action: none; cursor: grab; opacity: 0; }
+  .drag-handle svg { width: 18px; height: 18px; display: block; }
+  .item-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; cursor: pointer; }
+  .item-row input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--sage); flex-shrink: 0; }
+  .item-row.checked .item-name { text-decoration: line-through; color: var(--muted); }
+  .item-main { flex: 1; min-width: 0; }
+  .item-name { font-size: 0.93rem; display: block; }
+  .item-qty-line { font-size: 0.78rem; color: var(--muted); margin-top: 1px; }
+  .item-total { font-weight: 600; font-size: 0.9rem; white-space: nowrap; }
+  .item-chevron { color: var(--muted); font-size: 0.75rem; transition: transform 0.2s ease; margin-left: 2px; }
+  .item-chevron.open { transform: rotate(180deg); }
+
+  .item-detail { display: none; padding: 4px 0 14px 30px; }
+  .item-detail.open { display: block; }
+  .detail-grid { display: flex; gap: 8px; margin-bottom: 10px; }
+  .detail-grid .field-col { flex: 1; }
+  .detail-grid input { font-size: 0.9rem; padding: 9px 10px; }
+  .detail-desc { margin-bottom: 12px; }
+  .detail-desc textarea { min-height: 56px; resize: vertical; font-size: 0.88rem; }
+  .btn-delete-item {
+    width: 100%; background: #FBEDEA; color: var(--danger); font-weight: 600;
+    font-size: 0.88rem; padding: 11px; border-radius: 10px;
+  }
+
+  .empty { text-align: center; color: var(--muted); font-size: 0.88rem; padding: 24px 0; }
+  .footer-note { text-align: center; color: var(--muted); font-size: 0.75rem; margin-top: 20px; }
+
+  .fab-calc {
+    position: fixed; left: 18px; bottom: 22px; width: 56px; height: 56px; border-radius: 50%;
+    background: var(--sage); color: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(217,119,87,0.35); z-index: 40;
+  }
+  .fab-calc svg { width: 26px; height: 26px; }
+
+  .fab-add {
+    position: fixed; right: 18px; bottom: 22px; width: 56px; height: 56px; border-radius: 50%;
+    background: var(--sage-dark); color: #fff; display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 16px rgba(217,119,87,0.35); z-index: 40;
+  }
+  .fab-add svg { width: 26px; height: 26px; }
+
+  .icon-btn {
+    background: none; color: var(--muted); padding: 4px; display: flex; align-items: center; justify-content: center;
+  }
+  .icon-btn svg { width: 19px; height: 19px; }
+
+  .search-wrap { display: none; margin-bottom: 12px; }
+  .search-wrap.open { display: block; }
+
+  .calc-overlay { position: fixed; inset: 0; background: rgba(44,42,36,0.45); display: none; align-items: flex-end; justify-content: center; z-index: 50; }
+  .calc-overlay.open { display: flex; }
+  .calc-sheet { background: var(--card); width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; border-radius: 20px 20px 0 0; padding: 18px 18px 26px; }
+  .calc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .calc-header h3 { margin: 0; font-size: 1rem; }
+  .calc-close { background: none; color: var(--muted); font-size: 1.3rem; padding: 2px 6px; }
+  .calc-display { background: #F1ECE0; border-radius: 10px; padding: 14px 16px; text-align: right; margin-bottom: 12px; }
+  .calc-expr { font-size: 0.85rem; color: var(--muted); min-height: 18px; }
+  .calc-result { font-size: 1.8rem; font-weight: 700; }
+  .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .calc-btn { background: #FCFBF8; border: 1px solid var(--line); border-radius: 10px; font-size: 1.1rem; font-weight: 600; padding: 14px 0; color: var(--ink); }
+  .calc-btn.op { background: #F1ECE0; color: var(--sage-dark); }
+  .calc-btn.eq { background: var(--sage); color: #fff; }
+  .calc-btn.clear { color: var(--danger); }
+  .calc-actions { display: flex; gap: 8px; margin-top: 10px; }
+  .calc-add-item { flex: 1; background: var(--clay); color: #fff; font-weight: 600; padding: 12px; border-radius: 10px; font-size: 0.92rem; }
+
+  /* ---------- Autenticação (Firebase / Google) ---------- */
+  /* Enquanto não há usuário logado, só a tela de login aparece. */
+  html:not(.signed-in) body > *:not(#loginScreen):not(script) { display: none !important; }
+  html.signed-in #loginScreen { display: none; }
+
+  #loginScreen {
+    position: fixed; inset: 0; z-index: 100; background: var(--bg);
+    display: flex; align-items: center; justify-content: center; padding: 24px 16px;
+  }
+  .login-card {
+    width: 100%; max-width: 380px; background: var(--card); border: 1px solid var(--line);
+    border-radius: 20px; padding: 32px 24px 26px; text-align: center;
+  }
+  .login-logo { width: 64px; height: 64px; border-radius: 16px; margin: 0 auto 16px; display: block; }
+  .login-title { font-size: 1.7rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 6px; }
+  .login-sub { color: var(--muted); font-size: 0.95rem; margin: 0 0 26px; }
+  .btn-google {
+    width: 100%; display: flex; align-items: center; justify-content: center; gap: 10px;
+    background: #fff; color: var(--ink); border: 1px solid var(--line); border-radius: 10px;
+    padding: 13px; font-size: 0.95rem; font-weight: 700; transition: background 0.15s ease;
+  }
+  .btn-google:active { background: #F1ECE0; }
+  .btn-google:disabled { opacity: 0.6; cursor: default; }
+  .btn-google svg { width: 20px; height: 20px; flex-shrink: 0; }
+  .login-msg { min-height: 18px; margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+  .login-msg.error { color: var(--danger); }
+
+  .user-bar {
+    display: flex; align-items: center; gap: 10px; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--radius); padding: 10px 12px; margin-bottom: 16px;
+  }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+    background: var(--sage); color: #fff; font-weight: 800; display: flex; align-items: center; justify-content: center;
+  }
+  .user-info { flex: 1; min-width: 0; }
+  .user-name { font-weight: 700; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .user-email { color: var(--muted); font-size: 0.78rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sync-error { display: none; color: var(--danger); font-size: 0.75rem; font-weight: 600; margin-top: 2px; }
+  .sync-error.show { display: block; }
+  .btn-logout {
+    background: #FBEDEA; color: var(--danger); font-weight: 700; font-size: 0.82rem;
+    padding: 8px 12px; border-radius: 9px; flex-shrink: 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- ---------- Tela de login (Firebase Authentication / Google) ---------- -->
+<div id="loginScreen">
+  <div class="login-card">
+    <svg class="login-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100" height="100" rx="22" fill="#D97757"/>
+      <g transform="translate(-7 -8.5)">
+      <path d="M30 32 L34 32 L40 66 Q41 70 45 70 L74 70 Q78 70 79 66 L84 42 L38 42" fill="none" stroke="#FCFBF8" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="48" cy="80" r="5" fill="#FCFBF8"/><circle cx="71" cy="80" r="5" fill="#FCFBF8"/>
+      </g>
+    </svg>
+    <h1 class="login-title" style="display:block;">Lista de Compras</h1>
+    <p class="login-sub">Entre para acessar sua lista</p>
+    <button type="button" class="btn-google" id="googleLoginBtn" disabled>
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/>
+        <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/>
+        <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/>
+        <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/>
+      </svg>
+      <span id="googleLoginLabel">Verificando sessão...</span>
+    </button>
+    <div class="login-msg" id="loginMsg"></div>
+  </div>
+</div>
+
+<h1>
+  <svg class="app-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <rect width="100" height="100" rx="22" fill="#4C7A5B"/>
+    <path d="M28 40 L72 40 L66 78 Q65 82 61 82 L39 82 Q35 82 34 78 Z" fill="#FCFBF8"/>
+    <path d="M38 40 L42 24 Q43 20 47 20 L53 20 Q57 20 58 24 L62 40" fill="none" stroke="#FCFBF8" stroke-width="5" stroke-linecap="round"/>
+    <line x1="34" y1="52" x2="66" y2="52" stroke="#4C7A5B" stroke-width="3"/>
+    <line x1="36" y1="64" x2="64" y2="64" stroke="#4C7A5B" stroke-width="3"/>
+    <circle cx="45" cy="30" r="4" fill="#C9714A"/>
+    <circle cx="56" cy="28" r="3" fill="#D89A3A"/>
+  </svg>
+  Lista de compras
+</h1>
+<div class="sub">Adicione os itens e o orçamento vai descontando sozinho.</div>
+
+<!-- ---------- Usuário conectado + Sair ---------- -->
+<div class="user-bar" id="userBar">
+  <div class="user-avatar" id="userAvatar"></div>
+  <div class="user-info">
+    <div class="user-name" id="userName"></div>
+    <div class="user-email" id="userEmail"></div>
+    <div class="sync-error" id="syncError">Não foi possível salvar na nuvem. Tentando de novo...</div>
+  </div>
+  <button type="button" class="btn-logout" id="logoutBtn">Sair</button>
+</div>
+
+<div class="tab-nav">
+  <button class="tab-btn active" id="tabBtnLista" data-tab="lista">Lista</button>
+  <button class="tab-btn" id="tabBtnAnalise" data-tab="analise">Análise</button>
+</div>
+
+<div class="tab-panel active" id="tabLista">
+
+<div class="card">
+  <div class="budget-row">
+    <label for="budgetInput">Orçamento previsto</label>
+    <div>R$ <input type="number" id="budgetInput" class="budget-input" step="0.01" min="0" value="1000"></div>
+  </div>
+  <div class="remaining ok" id="remainingValue">R$ 1.000,00</div>
+  <div class="remaining-label" id="remainingLabel">restante</div>
+  <div class="bar-track"><div class="bar-fill" id="barFill" style="width:0%; background: var(--sage);"></div></div>
+  <div class="totals-line">
+    <span id="spentLine">Gasto: R$ 0,00</span>
+    <span id="pctLine">0%</span>
+  </div>
+</div>
+
+<div class="list-header">
+  <h2>Categorias</h2>
+  <div style="display:flex; gap:12px; align-items:center;">
+    <button class="icon-btn" id="searchToggle" title="Pesquisar item">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <button class="clear-checked" id="uncheckAll" style="color: var(--sage-dark);">Desmarcar tudo</button>
+    <button class="clear-checked" id="clearChecked">Limpar marcados</button>
+  </div>
+</div>
+
+<div class="search-wrap" id="searchWrap">
+  <input type="text" id="searchInput" placeholder="Pesquisar item em todas as categorias...">
+</div>
+
+<div id="listContainer"></div>
+
+<div class="export-bar">
+  <button class="btn-export" id="exportBtn">Exportar lista (.txt)</button>
+</div>
+
+<div class="footer-note">Toque no item pra ver detalhes e excluir. Use o botão + pra adicionar um item novo.</div>
+
+</div>
+
+<div class="tab-panel" id="tabAnalise">
+
+<div class="card summary-card">
+  <h2>Onde estou gastando mais</h2>
+  <div id="summaryContainer"></div>
+</div>
+
+<div class="card health-card">
+  <h2>Saudável x não tão saudável</h2>
+  <div id="healthSummaryContainer"></div>
+</div>
+
+
+<div class="card compare-card">
+  <h2>Comparado ao mês passado</h2>
+  <div id="compareContainer"></div>
+</div>
+
+<div class="footer-note">O comparativo é atualizado toda vez que você exporta a lista.</div>
+
+</div>
+
+
+<button class="fab-calc" id="fabCalc" title="Calculadora">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="2" width="16" height="20" rx="2" stroke="currentColor" stroke-width="1.8"/>
+    <line x1="7" y1="6" x2="17" y2="6" stroke="currentColor" stroke-width="1.8"/>
+    <circle cx="7.5" cy="11" r="1" fill="currentColor"/><circle cx="12" cy="11" r="1" fill="currentColor"/><circle cx="16.5" cy="11" r="1" fill="currentColor"/>
+    <circle cx="7.5" cy="15" r="1" fill="currentColor"/><circle cx="12" cy="15" r="1" fill="currentColor"/><circle cx="16.5" cy="15" r="1" fill="currentColor"/>
+    <circle cx="7.5" cy="19" r="1" fill="currentColor"/><circle cx="12" cy="19" r="1" fill="currentColor"/><circle cx="16.5" cy="19" r="1" fill="currentColor"/>
+  </svg>
+</button>
+
+<button class="fab-add" id="fabAdd" title="Adicionar item">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="12" y1="5" x2="12" y2="19" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <line x1="5" y1="12" x2="19" y2="12" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+  </svg>
+</button>
+
+<div class="calc-overlay" id="calcOverlay">
+  <div class="calc-sheet">
+    <div class="calc-header">
+      <h3>Calculadora</h3>
+      <button class="calc-close" id="calcClose">✕</button>
+    </div>
+    <div class="calc-display">
+      <div class="calc-expr" id="calcExpr">&nbsp;</div>
+      <div class="calc-result" id="calcResult">0</div>
+    </div>
+    <div class="calc-grid">
+      <button class="calc-btn clear" data-k="C">C</button>
+      <button class="calc-btn op" data-k="(">(</button>
+      <button class="calc-btn op" data-k=")">)</button>
+      <button class="calc-btn op" data-k="÷">÷</button>
+      <button class="calc-btn" data-k="7">7</button>
+      <button class="calc-btn" data-k="8">8</button>
+      <button class="calc-btn" data-k="9">9</button>
+      <button class="calc-btn op" data-k="×">×</button>
+      <button class="calc-btn" data-k="4">4</button>
+      <button class="calc-btn" data-k="5">5</button>
+      <button class="calc-btn" data-k="6">6</button>
+      <button class="calc-btn op" data-k="-">−</button>
+      <button class="calc-btn" data-k="1">1</button>
+      <button class="calc-btn" data-k="2">2</button>
+      <button class="calc-btn" data-k="3">3</button>
+      <button class="calc-btn op" data-k="+">+</button>
+      <button class="calc-btn" data-k="0" style="grid-column: span 2;">0</button>
+      <button class="calc-btn" data-k=",">,</button>
+      <button class="calc-btn eq" data-k="=">=</button>
+    </div>
+    <div class="calc-actions">
+      <button class="calc-add-item" id="calcSendToPrice">Usar valor no preço unit.</button>
+    </div>
+  </div>
+</div>
+
+<div class="calc-overlay" id="addItemOverlay">
+  <div class="calc-sheet">
+    <div class="calc-header">
+      <h3>Novo item</h3>
+      <button class="calc-close" id="addItemClose">✕</button>
+    </div>
+
+    <div class="add-form">
+      <div class="add-row">
+        <input type="text" id="itemName" class="name-field" placeholder="Nome do item">
+      </div>
+      <div class="item-preview" id="itemPreview">
+        <span class="item-preview-emoji" id="previewEmoji"></span>
+        <span class="item-preview-label" id="previewLabel"></span>
+      </div>
+      <div class="add-row">
+        <div class="field-col qty-field">
+          <span class="field-label">Qtd</span>
+          <input type="number" id="itemQty" min="0" step="0.01" placeholder="1">
+        </div>
+        <div class="field-col unit-field">
+          <span class="field-label">Unidade</span>
+          <input type="text" id="itemUnit" placeholder="un, g, kg...">
+        </div>
+      </div>
+      <div class="add-row">
+        <div class="field-col price-field-wide">
+          <span class="field-label">Preço unit.</span>
+          <input type="number" id="itemPrice" min="0" step="0.01" placeholder="0,00">
+        </div>
+        <div class="field-col price-field-wide">
+          <span class="field-label">Preço total</span>
+          <input type="number" id="itemTotalPrice" min="0" step="0.01" placeholder="0,00">
+        </div>
+      </div>
+      <div class="add-row">
+        <select id="itemCategory" class="cat-select"></select>
+      </div>
+      <div class="field-col">
+        <span class="field-label">É saudável?</span>
+        <div class="health-row" id="healthRow">
+          <button type="button" class="health-pill" data-health="nao_saudavel">Não</button>
+          <button type="button" class="health-pill" data-health="saudavel">Sim</button>
+          <button type="button" class="health-pill" data-health="neutro">Neutro</button>
+        </div>
+      </div>
+      <button type="button" class="toggle-desc" id="toggleDesc">+ adicionar descrição (marca, observação...)</button>
+      <div class="desc-wrap" id="descWrap">
+        <textarea id="itemDesc" placeholder="Ex: marca X, embalagem de 1kg, promoção..." rows="2" style="min-height:52px;"></textarea>
+      </div>
+      <button class="btn-add" id="addBtn">Adicionar à lista</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ---------- Category structure ---------- */
+const CATEGORY_TREE = {
+  'Açougue': [null],
+  'Hortifruti': ['Verdura', 'Legumes', 'Frutas', 'Temperos', 'Outros'],
+  'Mercado': ['Mercearia', 'Bebidas', 'Higiene Pessoal', 'Limpeza', 'Outros']
+};
+const GROUP_COLORS = { 'Açougue': '#C1523E', 'Hortifruti': '#4C7A5B', 'Mercado': '#C9714A' };
+
+function populateCategorySelect() {
+  const sel = document.getElementById('itemCategory');
+  sel.innerHTML = '';
+  Object.keys(CATEGORY_TREE).forEach(group => {
+    const subs = CATEGORY_TREE[group];
+    if (subs.length === 1 && subs[0] === null) {
+      const opt = document.createElement('option');
+      opt.value = JSON.stringify({ group, sub: null });
+      opt.textContent = group;
+      sel.appendChild(opt);
+    } else {
+      const optgroup = document.createElement('optgroup');
+      optgroup.label = group;
+      subs.forEach(sub => {
+        const opt = document.createElement('option');
+        opt.value = JSON.stringify({ group, sub });
+        opt.textContent = sub;
+        optgroup.appendChild(opt);
+      });
+      sel.appendChild(optgroup);
+    }
+  });
+}
+
+/* ---------- State ---------- */
+let items = []; // { name, qty, unit, unitPrice, desc, checked, group, sub }
+let budget = 1000;
+let openGroups = {};
+let openItems = {}; // idx -> bool
+let history = []; // [{ label, spent, timestamp }]
+
+const STORAGE_KEY = 'shopping-list-state-v3';
+const HISTORY_KEY = 'shopping-list-history-v1';
+
+function itemTotal(it) {
+  const qty = (it.qty === null || it.qty === undefined || isNaN(it.qty)) ? 1 : it.qty;
+  const price = (it.unitPrice === null || it.unitPrice === undefined || isNaN(it.unitPrice)) ? 0 : it.unitPrice;
+  return qty * price;
+}
+
+/* ---------- Persistência (Firestore) ----------
+   Os dados agora ficam no Firestore em users/{uid}/appData/main.
+   Esta parte do script NÃO fala com o Firebase diretamente: ela expõe a ponte
+   window.appData, que o <script type="module"> do Firebase (no fim do arquivo) usa
+   pra carregar, limpar e salvar o estado do usuário logado.
+   saveState() e saveHistory() continuam com o mesmo nome e são chamadas nos
+   mesmos lugares de antes — só mudou pra onde os dados vão. */
+
+// Lê os dados antigos do localStorage (somente leitura, nunca apaga).
+// Usado apenas na migração inicial pro Firestore.
+function readLegacyLocalData() {
+  let legacyItems = null;
+  let legacyBudget = null;
+  let legacyHistory = null;
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const data = JSON.parse(raw);
+      legacyItems = data.items || [];
+      legacyBudget = typeof data.budget === 'number' ? data.budget : 1000;
+    } else {
+      throw new Error('no v3 data');
+    }
+  } catch (e) {
+    // try migrating from v2
+    try {
+      const oldRaw = localStorage.getItem('shopping-list-state-v2');
+      if (oldRaw) {
+        const data = JSON.parse(oldRaw);
+        legacyBudget = typeof data.budget === 'number' ? data.budget : 1000;
+        legacyItems = (data.items || []).map(it => ({
+          name: it.name, qty: 1, unit: '', unitPrice: it.price || 0,
+          desc: '', checked: it.checked, group: it.group, sub: it.sub
+        }));
+      }
+    } catch (e2) {}
+  }
+  try {
+    const histRaw = localStorage.getItem(HISTORY_KEY);
+    if (histRaw) legacyHistory = JSON.parse(histRaw) || [];
+  } catch (e) {}
+
+  const hasData = (legacyItems && legacyItems.length > 0) || (legacyHistory && legacyHistory.length > 0) || (legacyBudget !== null && legacyBudget !== 1000);
+  if (!hasData) return null;
+  return { items: legacyItems || [], budget: legacyBudget !== null ? legacyBudget : 1000, history: legacyHistory || [] };
+}
+
+// Aplica na interface os dados vindos do Firestore (ou o estado vazio).
+function loadState(data) {
+  data = data || {};
+  items = Array.isArray(data.items) ? data.items : [];
+  budget = typeof data.budget === 'number' ? data.budget : 1000;
+  history = Array.isArray(data.history) ? data.history : [];
+  openItems = {};
+  document.getElementById('budgetInput').value = budget;
+  Object.keys(CATEGORY_TREE).forEach(g => { if (!(g in openGroups)) openGroups[g] = true; });
+  render();
+}
+
+// Limpa tudo que está na tela (usado no logout), sem tocar no localStorage.
+function resetVisualState() {
+  items = [];
+  budget = 1000;
+  history = [];
+  openItems = {};
+  openGroups = {};
+  Object.keys(CATEGORY_TREE).forEach(g => { openGroups[g] = true; });
+  searchQuery = '';
+  const searchInputEl = document.getElementById('searchInput');
+  if (searchInputEl) searchInputEl.value = '';
+  const searchWrapEl = document.getElementById('searchWrap');
+  if (searchWrapEl) searchWrapEl.classList.remove('open');
+  document.getElementById('budgetInput').value = budget;
+  ['itemName', 'itemQty', 'itemUnit', 'itemPrice', 'itemTotalPrice', 'itemDesc'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.querySelectorAll('.calc-overlay.open').forEach(el => el.classList.remove('open'));
+  if (typeof calcExpression !== 'undefined') { calcExpression = ''; calcUpdateDisplay(); }
+  if (typeof setSelectedHealth === 'function') setSelectedHealth(null, false);
+  render();
+}
+
+// Tudo que é persistido, num único objeto (é exatamente o que vai pro Firestore).
+function getPersistedState() {
+  // JSON ida-e-volta remove valores undefined, que o Firestore não aceita.
+  return JSON.parse(JSON.stringify({ items, budget, history }));
+}
+
+// Ponte usada pelo módulo do Firebase.
+window.appData = {
+  readLegacyLocalData,
+  loadState,
+  resetVisualState,
+  getPersistedState,
+  requestSave: null // preenchida pelo módulo do Firebase quando há usuário logado
+};
+
+function requestCloudSave() {
+  if (typeof window.appData.requestSave === 'function') window.appData.requestSave();
+}
+
+async function saveHistory() {
+  requestCloudSave();
+}
+
+async function saveState() {
+  requestCloudSave();
+}
+
+function formatBRL(n) { return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); }
+function formatQty(n) {
+  if (n === null || n === undefined) return '1';
+  return n % 1 === 0 ? String(n) : String(n).replace('.', ',');
+}
+
+/* ---------- Render ---------- */
+function render() {
+  const spent = items.reduce((sum, it) => sum + itemTotal(it), 0);
+  const remaining = budget - spent;
+  const pct = budget > 0 ? Math.min((spent / budget) * 100, 100) : 0;
+
+  const remainingEl = document.getElementById('remainingValue');
+  remainingEl.textContent = formatBRL(remaining);
+  remainingEl.className = 'remaining ' + (remaining < 0 ? 'over' : pct >= 85 ? 'warn' : 'ok');
+  document.getElementById('remainingLabel').textContent = remaining < 0 ? 'acima do orçamento' : 'restante';
+  document.getElementById('spentLine').textContent = `Gasto: ${formatBRL(spent)}`;
+  document.getElementById('pctLine').textContent = `${Math.round(pct)}%`;
+
+  const barFill = document.getElementById('barFill');
+  barFill.style.width = pct + '%';
+  barFill.style.background = remaining < 0 ? 'var(--danger)' : pct >= 85 ? 'var(--warn)' : 'var(--sage)';
+
+  renderGroups();
+  renderSummary(spent);
+  renderHealthSummary(spent);
+  renderCompare(spent);
+}
+
+function renderHealthSummary(totalSpent) {
+  const container = document.getElementById('healthSummaryContainer');
+  const classified = items.filter(it => it.health);
+  if (classified.length === 0) {
+    container.innerHTML = '<div class="summary-empty">Marque os itens como saudável, neutro ou não tão saudável pra ver o resumo aqui.</div>';
+    return;
+  }
+
+  const totals = { saudavel: 0, neutro: 0, nao_saudavel: 0 };
+  items.forEach(it => { if (it.health && totals.hasOwnProperty(it.health)) totals[it.health] += itemTotal(it); });
+  const classifiedTotal = totals.saudavel + totals.neutro + totals.nao_saudavel;
+  const unclassifiedTotal = totalSpent - classifiedTotal;
+
+  let html = '';
+  Object.keys(HEALTH_META).forEach(key => {
+    const meta = HEALTH_META[key];
+    const value = totals[key];
+    const pct = classifiedTotal > 0 ? (value / classifiedTotal) * 100 : 0;
+    html += `
+      <div class="health-summary-row">
+        <span class="health-summary-dot" style="background:${meta.color};"></span>
+        <div class="health-summary-body">
+          <div class="health-summary-top"><span class="h-name">${meta.label}</span><span class="h-value">${formatBRL(value)} · ${Math.round(pct)}%</span></div>
+          <div class="health-bar-track"><div class="health-bar-fill" style="width:${pct}%; background:${meta.color};"></div></div>
+        </div>
+      </div>`;
+  });
+  if (unclassifiedTotal > 0.004) {
+    html += `<div class="summary-empty" style="text-align:left; padding-top:4px;">+ ${formatBRL(unclassifiedTotal)} em itens ainda não classificados</div>`;
+  }
+  container.innerHTML = html;
+}
+
+function monthLabel(date) {
+  const monthNames = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
+  return `${monthNames[date.getMonth()]}/${date.getFullYear()}`;
+}
+
+function renderCompare(currentSpent) {
+  const container = document.getElementById('compareContainer');
+  if (history.length === 0) {
+    container.innerHTML = '<div class="compare-empty">Exporte a lista ao terminar o mês pra começar a comparar com o próximo.</div>';
+    return;
+  }
+  const last = history[history.length - 1];
+  const diff = currentSpent - last.spent;
+  const pctDiff = last.spent > 0 ? (diff / last.spent) * 100 : 0;
+  const diffClass = diff > 0 ? 'up' : diff < 0 ? 'down' : '';
+  const arrow = diff > 0 ? '▲' : diff < 0 ? '▼' : '—';
+  const diffText = last.spent > 0
+    ? `${arrow} ${Math.abs(pctDiff).toFixed(0)}% ${diff > 0 ? 'a mais' : diff < 0 ? 'a menos' : 'igual'} que em ${last.label}`
+    : `${arrow} ${formatBRL(Math.abs(diff))} ${diff > 0 ? 'a mais' : 'a menos'} que em ${last.label}`;
+
+  container.innerHTML = `
+    <div class="compare-row"><span class="compare-label">${last.label} (exportado)</span><span class="compare-value">${formatBRL(last.spent)}</span></div>
+    <div class="compare-row"><span class="compare-label">Este mês (até agora)</span><span class="compare-value">${formatBRL(currentSpent)}</span></div>
+    <div class="compare-diff ${diffClass}">${diffText}</div>
+  `;
+}
+
+
+function renderSummary(totalSpent) {
+  const container = document.getElementById('summaryContainer');
+  if (totalSpent <= 0) {
+    container.innerHTML = '<div class="summary-empty">Adicione itens pra ver a comparação por categoria.</div>';
+    return;
+  }
+  const groupTotals = Object.keys(CATEGORY_TREE).map(group => {
+    const total = items.filter(it => it.group === group).reduce((s, it) => s + itemTotal(it), 0);
+    return { group, total };
+  }).sort((a, b) => b.total - a.total);
+  const maxTotal = Math.max(...groupTotals.map(g => g.total), 1);
+
+  let html = '';
+  groupTotals.forEach(({ group, total }) => {
+    const pctOfTotal = totalSpent > 0 ? (total / totalSpent) * 100 : 0;
+    const pctOfMax = (total / maxTotal) * 100;
+    const color = GROUP_COLORS[group] || 'var(--sage)';
+    html += `
+      <div class="summary-row">
+        <div class="summary-row-top">
+          <span class="s-name">${group}</span>
+          <span class="s-value">${formatBRL(total)} · ${Math.round(pctOfTotal)}%</span>
+        </div>
+        <div class="summary-bar-track"><div class="summary-bar-fill" style="width:${pctOfMax}%; background:${color};"></div></div>
+      </div>`;
+  });
+  container.innerHTML = html;
+}
+
+let searchQuery = '';
+
+function renderGroups() {
+  const container = document.getElementById('listContainer');
+
+  if (items.length === 0) {
+    let html = '';
+    Object.keys(CATEGORY_TREE).forEach(group => { html += emptyGroupCard(group); });
+    container.innerHTML = html;
+    attachGroupToggles();
+    return;
+  }
+
+  const query = normalizeText(searchQuery);
+  const matchesQuery = (it) => !query || normalizeText(it.name).includes(query);
+
+  if (query) {
+    const anyMatch = items.some(matchesQuery);
+    if (!anyMatch) {
+      container.innerHTML = '<div class="empty">Nenhum item encontrado pra essa busca.</div>';
+      return;
+    }
+  }
+
+  let html = '';
+  Object.keys(CATEGORY_TREE).forEach(group => {
+    const subs = CATEGORY_TREE[group];
+    const groupItems = items.map((it, idx) => ({ ...it, idx })).filter(it => it.group === group && matchesQuery(it));
+    if (query && groupItems.length === 0) return;
+    const groupTotal = groupItems.reduce((s, it) => s + itemTotal(it), 0);
+    const isOpen = query ? true : !!openGroups[group];
+
+    html += `<div class="group-card">
+      <div class="group-head" data-group="${group}">
+        <span class="group-name">${group}</span>
+        <div style="display:flex; align-items:center;">
+          <span class="group-total">${formatBRL(groupTotal)}</span>
+          <span class="group-chevron ${isOpen ? 'open' : ''}">▾</span>
+        </div>
+      </div>
+      <div class="group-body ${isOpen ? 'open' : ''}">`;
+
+    if (groupItems.length === 0) {
+      html += `<div class="empty" style="padding:12px 0;">Nenhum item em ${group.toLowerCase()} ainda.</div>`;
+    } else if (subs.length === 1 && subs[0] === null) {
+      html += renderItemsList(groupItems);
+    } else {
+      subs.forEach(sub => {
+        const subItems = groupItems.filter(it => it.sub === sub);
+        if (subItems.length === 0) return;
+        const subTotal = subItems.reduce((s, it) => s + itemTotal(it), 0);
+        html += `<div class="subgroup">
+          <div class="subgroup-head"><span>${sub}</span><span class="subgroup-total">${formatBRL(subTotal)}</span></div>
+          ${renderItemsList(subItems)}
+        </div>`;
+      });
+    }
+    html += `</div></div>`;
+  });
+
+  container.innerHTML = html;
+  attachGroupToggles();
+  attachItemHandlers();
+}
+
+function emptyGroupCard(group) {
+  const isOpen = !!openGroups[group];
+  return `<div class="group-card">
+    <div class="group-head" data-group="${group}">
+      <span class="group-name">${group}</span>
+      <div style="display:flex; align-items:center;">
+        <span class="group-total">${formatBRL(0)}</span>
+        <span class="group-chevron ${isOpen ? 'open' : ''}">▾</span>
+      </div>
+    </div>
+    <div class="group-body ${isOpen ? 'open' : ''}">
+      <div class="empty" style="padding:12px 0;">Nenhum item em ${group.toLowerCase()} ainda.</div>
+    </div>
+  </div>`;
+}
+
+const HEALTH_META = {
+  nao_saudavel: { label: 'Não', color: 'var(--health-no)' },
+  saudavel: { label: 'Sim', color: 'var(--health-yes)' },
+  neutro: { label: 'Neutro', color: 'var(--health-neutral)' }
+};
+
+function renderItemsList(list) {
+  return list.map(it => {
+    const total = itemTotal(it);
+    const qty = (it.qty === null || it.qty === undefined || isNaN(it.qty)) ? 1 : it.qty;
+    const unit = it.unit || '';
+    const unitPrice = (it.unitPrice === null || it.unitPrice === undefined || isNaN(it.unitPrice)) ? 0 : it.unitPrice;
+    const qtyLine = `${formatQty(qty)}${unit ? ' ' + unit : ''} × ${formatBRL(unitPrice)}`;
+    const isOpen = !!openItems[it.idx];
+    const health = it.health || null;
+    const badge = health && HEALTH_META[health] ? `<span class="health-dot" style="background:${HEALTH_META[health].color};"></span>` : '';
+
+    const healthPillsDetail = Object.keys(HEALTH_META).map(key => {
+      const meta = HEALTH_META[key];
+      const sel = health === key ? 'selected ' + key : '';
+      return `<button type="button" class="health-pill detail-health ${sel}" data-idx="${it.idx}" data-health="${key}">${meta.label}</button>`;
+    }).join('');
+
+    return `
+    <div class="item-wrap" data-idx="${it.idx}">
+      <div class="item-row ${it.checked ? 'checked' : ''}">
+        <span class="drag-handle" data-idx="${it.idx}" title="Segure e arraste">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="9" cy="6" r="1.6" fill="currentColor"/><circle cx="15" cy="6" r="1.6" fill="currentColor"/>
+            <circle cx="9" cy="12" r="1.6" fill="currentColor"/><circle cx="15" cy="12" r="1.6" fill="currentColor"/>
+            <circle cx="9" cy="18" r="1.6" fill="currentColor"/><circle cx="15" cy="18" r="1.6" fill="currentColor"/>
+          </svg>
+        </span>
+        <input type="checkbox" data-idx="${it.idx}" class="chk" ${it.checked ? 'checked' : ''}>
+        <div class="item-main" data-toggle="${it.idx}">
+          <span class="item-name">${escapeHtml(it.name)}${badge}</span>
+          <div class="item-qty-line">${qtyLine}</div>
+        </div>
+        <span class="item-total">${formatBRL(total)}</span>
+        <span class="item-chevron ${isOpen ? 'open' : ''}" data-toggle="${it.idx}">▾</span>
+      </div>
+      <div class="item-detail ${isOpen ? 'open' : ''}">
+        <div class="detail-grid">
+          <div class="field-col"><span class="field-label">Qtd</span><input type="number" min="0" step="0.01" class="detail-qty" data-idx="${it.idx}" value="${qty}"></div>
+          <div class="field-col"><span class="field-label">Unidade</span><input type="text" class="detail-unit" data-idx="${it.idx}" value="${escapeHtml(unit)}" placeholder="un, g, kg..."></div>
+          <div class="field-col"><span class="field-label">Preço unit.</span><input type="number" min="0" step="0.01" class="detail-price" data-idx="${it.idx}" value="${unitPrice}"></div>
+        </div>
+        <div class="detail-desc">
+          <span class="field-label">Descrição</span>
+          <textarea class="detail-desc-input" data-idx="${it.idx}" placeholder="Marca, observação...">${escapeHtml(it.desc || '')}</textarea>
+        </div>
+        <div class="detail-desc">
+          <span class="field-label">É saudável?</span>
+          <div class="health-row">${healthPillsDetail}</div>
+        </div>
+        <button class="btn-delete-item" data-idx="${it.idx}">Excluir item</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function attachGroupToggles() {
+  document.querySelectorAll('.group-head').forEach(head => {
+    head.addEventListener('click', () => {
+      const group = head.dataset.group;
+      openGroups[group] = !openGroups[group];
+      render();
+    });
+  });
+}
+
+function attachItemHandlers() {
+  document.querySelectorAll('.drag-handle').forEach(handle => {
+    handle.addEventListener('pointerdown', onDragStart);
+  });
+  document.querySelectorAll('.chk').forEach(chk => {
+    chk.addEventListener('click', (e) => e.stopPropagation());
+    chk.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      items[idx].checked = e.target.checked;
+      saveState();
+      render();
+    });
+  });
+  document.querySelectorAll('[data-toggle]').forEach(el => {
+    el.addEventListener('click', () => {
+      const idx = parseInt(el.dataset.toggle);
+      openItems[idx] = !openItems[idx];
+      render();
+    });
+  });
+  document.querySelectorAll('.detail-qty').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      items[idx].qty = parseFloat(e.target.value) || 0;
+      saveState();
+      render();
+    });
+  });
+  document.querySelectorAll('.detail-unit').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      items[idx].unit = e.target.value;
+      saveState();
+      render();
+    });
+  });
+  document.querySelectorAll('.detail-price').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      items[idx].unitPrice = parseFloat(e.target.value) || 0;
+      saveState();
+      render();
+    });
+  });
+  document.querySelectorAll('.detail-desc-input').forEach(inp => {
+    inp.addEventListener('change', (e) => {
+      const idx = parseInt(e.target.dataset.idx);
+      items[idx].desc = e.target.value;
+      saveState();
+    });
+  });
+  document.querySelectorAll('.detail-health').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      items[idx].health = btn.dataset.health;
+      saveState();
+      render();
+    });
+  });
+  document.querySelectorAll('.btn-delete-item').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const idx = parseInt(btn.dataset.idx);
+      items.splice(idx, 1);
+      openItems = {};
+      saveState();
+      render();
+    });
+  });
+}
+
+/* ---------- Arrastar pra reordenar itens dentro da mesma categoria ---------- */
+let dragState = null;
+
+function onDragStart(e) {
+  const handle = e.currentTarget;
+  const wrap = handle.closest('.item-wrap');
+  const container = wrap.parentElement;
+  const siblings = Array.from(container.querySelectorAll(':scope > .item-wrap'));
+  if (siblings.length < 2) return; // nada pra reordenar
+
+  e.preventDefault();
+  const rect = wrap.getBoundingClientRect();
+  dragState = {
+    idx: parseInt(wrap.dataset.idx),
+    wrap, container, siblings,
+    startY: e.clientY,
+    originTop: rect.top,
+    pointerId: e.pointerId
+  };
+  wrap.classList.add('dragging');
+  wrap.style.width = rect.width + 'px';
+  document.body.style.userSelect = 'none';
+
+  document.addEventListener('pointermove', onDragMove);
+  document.addEventListener('pointerup', onDragEnd);
+  document.addEventListener('pointercancel', onDragEnd);
+}
+
+function onDragMove(e) {
+  if (!dragState) return;
+  const { wrap, container } = dragState;
+  const deltaY = e.clientY - dragState.startY;
+  wrap.style.transform = `translateY(${deltaY}px)`;
+
+  const wrapRect = wrap.getBoundingClientRect();
+  const wrapCenter = wrapRect.top + wrapRect.height / 2;
+
+  // Só compara com o vizinho imediato (anterior/seguinte), nunca com
+  // itens distantes — isso evita "pulos" pro topo da lista.
+  const prev = wrap.previousElementSibling;
+  if (prev && prev.classList.contains('item-wrap')) {
+    const prevRect = prev.getBoundingClientRect();
+    const prevCenter = prevRect.top + prevRect.height / 2;
+    if (wrapCenter < prevCenter) {
+      container.insertBefore(wrap, prev);
+      dragState.startY = e.clientY;
+      wrap.style.transform = 'translateY(0px)';
+      return;
+    }
+  }
+
+  const next = wrap.nextElementSibling;
+  if (next && next.classList.contains('item-wrap')) {
+    const nextRect = next.getBoundingClientRect();
+    const nextCenter = nextRect.top + nextRect.height / 2;
+    if (wrapCenter > nextCenter) {
+      container.insertBefore(next, wrap);
+      dragState.startY = e.clientY;
+      wrap.style.transform = 'translateY(0px)';
+      return;
+    }
+  }
+}
+
+function onDragEnd() {
+  if (!dragState) return;
+  const { wrap, container } = dragState;
+  wrap.classList.remove('dragging');
+  wrap.style.transform = '';
+  wrap.style.width = '';
+  document.body.style.userSelect = '';
+  document.removeEventListener('pointermove', onDragMove);
+  document.removeEventListener('pointerup', onDragEnd);
+  document.removeEventListener('pointercancel', onDragEnd);
+
+  const orderedIdx = Array.from(container.querySelectorAll(':scope > .item-wrap')).map(el => parseInt(el.dataset.idx));
+  commitReorder(orderedIdx);
+  dragState = null;
+}
+
+function commitReorder(orderedIdx) {
+  // orderedIdx contém, na nova ordem, os índices originais (em items[]) dos
+  // itens daquela categoria/subcategoria. Vamos realocar esses itens nas
+  // mesmas posições que eles ocupavam no array, só que na nova sequência.
+  const slots = orderedIdx.slice().sort((a, b) => a - b);
+  const newItemsAtSlots = orderedIdx.map(i => items[i]);
+  slots.forEach((slot, i) => { items[slot] = newItemsAtSlots[i]; });
+  openItems = {};
+  saveState();
+  render();
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : str;
+  return div.innerHTML;
+}
+
+/* ---------- Visual reference preview (emoji) ---------- */
+const FOOD_EMOJI = {
+  'tomate': '🍅', 'cebola roxa': '🟣🧅', 'cebola': '🧅', 'alface': '🥬', 'repolho': '🥬',
+  'couve': '🥬', 'espinafre': '🥬', 'rucula': '🥬', 'batata doce': '🍠', 'batata': '🥔',
+  'cenoura': '🥕', 'pepino': '🥒', 'abobora': '🎃', 'abobrinha': '🥒', 'berinjela': '🍆',
+  'pimentao': '🫑', 'pimenta': '🌶️', 'milho': '🌽', 'alho': '🧄', 'brocolis': '🥦',
+  'banana': '🍌', 'maca': '🍎', 'laranja': '🍊', 'limao': '🍋', 'uva': '🍇',
+  'morango': '🍓', 'abacate': '🥑', 'manga': '🥭', 'melancia': '🍉', 'mamao': '🍈',
+  'pera': '🍐', 'kiwi': '🥝', 'abacaxi': '🍍', 'coco': '🥥', 'pessego': '🍑',
+  'feijao': '🫘', 'arroz': '🍚', 'leite': '🥛', 'queijo': '🧀', 'ovo': '🥚', 'ovos': '🥚',
+  'pao': '🍞', 'carne': '🥩', 'bife': '🥩', 'frango': '🍗', 'peixe': '🐟', 'camarao': '🍤',
+  'linguica': '🌭', 'bacon': '🥓', 'cafe': '☕', 'acucar': '🧂', 'sal': '🧂', 'oleo': '🫗',
+  'macarrao': '🍝', 'massa': '🍝', 'iogurte': '🥣', 'manteiga': '🧈', 'chocolate': '🍫',
+  'biscoito': '🍪', 'bolacha': '🍪', 'refrigerante': '🥤', 'suco': '🧃', 'agua': '💧',
+  'cerveja': '🍺', 'vinho': '🍷', 'sabao': '🧼', 'detergente': '🧴', 'papel higienico': '🧻',
+  'shampoo': '🧴', 'sabonete': '🧼', 'pasta de dente': '🪥', 'mel': '🍯', 'noz': '🥜',
+  'amendoim': '🥜', 'castanha': '🌰', 'pizza': '🍕', 'hamburguer': '🍔', 'sorvete': '🍨',
+  'gelo': '🧊', 'farinha': '🌾', 'pipoca': '🍿'
+};
+const FOOD_KEYS_SORTED = Object.keys(FOOD_EMOJI).sort((a, b) => b.length - a.length);
+
+function normalizeText(str) {
+  return str.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+}
+
+function findFoodMatch(text) {
+  const norm = normalizeText(text);
+  if (!norm) return null;
+  for (const key of FOOD_KEYS_SORTED) {
+    if (norm.includes(key)) return { key, emoji: FOOD_EMOJI[key] };
+  }
+  return null;
+}
+
+const itemNameInput = document.getElementById('itemName');
+const itemPreview = document.getElementById('itemPreview');
+const previewEmoji = document.getElementById('previewEmoji');
+const previewLabel = document.getElementById('previewLabel');
+
+itemNameInput.addEventListener('input', () => {
+  const match = findFoodMatch(itemNameInput.value);
+  if (match) {
+    previewEmoji.textContent = match.emoji;
+    previewLabel.textContent = match.key.charAt(0).toUpperCase() + match.key.slice(1);
+    itemPreview.classList.add('show');
+  } else {
+    itemPreview.classList.remove('show');
+  }
+
+  const healthGuess = findHealthMatch(itemNameInput.value);
+  setSelectedHealth(healthGuess, true);
+});
+
+/* ---------- Health classification (saudável / neutro / não tão saudável) ---------- */
+// Ordem importa: termos mais específicos (mais longos) são checados primeiro,
+// então "chocolate amargo" vence sobre "chocolate" puro.
+const HEALTH_DICT = [
+  // mais saudável
+  ['chocolate amargo', 'saudavel'], ['chocolate 70', 'saudavel'], ['iogurte natural', 'saudavel'],
+  ['iogurte desnatado', 'saudavel'], ['aveia', 'saudavel'], ['granola sem acucar', 'saudavel'],
+  ['quinoa', 'saudavel'], ['azeite', 'saudavel'], ['castanha', 'saudavel'], ['amendoa', 'saudavel'],
+  ['noz', 'saudavel'], ['peixe', 'saudavel'], ['frango grelhado', 'saudavel'], ['ovo', 'saudavel'],
+  ['ovos', 'saudavel'], ['agua', 'saudavel'], ['cha verde', 'saudavel'], ['cha', 'saudavel'],
+  ['integral', 'saudavel'], ['organico', 'saudavel'], ['tomate', 'saudavel'], ['alface', 'saudavel'],
+  ['repolho', 'saudavel'], ['couve', 'saudavel'], ['espinafre', 'saudavel'], ['rucula', 'saudavel'],
+  ['cenoura', 'saudavel'], ['pepino', 'saudavel'], ['brocolis', 'saudavel'], ['abobrinha', 'saudavel'],
+  ['berinjela', 'saudavel'], ['banana', 'saudavel'], ['maca', 'saudavel'], ['laranja', 'saudavel'],
+  ['limao', 'saudavel'], ['uva', 'saudavel'], ['morango', 'saudavel'], ['abacate', 'saudavel'],
+  ['manga', 'saudavel'], ['melancia', 'saudavel'], ['mamao', 'saudavel'], ['pera', 'saudavel'],
+  ['kiwi', 'saudavel'], ['abacaxi', 'saudavel'], ['legume', 'saudavel'], ['verdura', 'saudavel'],
+  ['fruta', 'saudavel'],
+  // menos saudável
+  ['chocolate', 'nao_saudavel'], ['achocolatado', 'nao_saudavel'], ['refrigerante', 'nao_saudavel'],
+  ['salgadinho', 'nao_saudavel'], ['batata frita', 'nao_saudavel'], ['biscoito recheado', 'nao_saudavel'],
+  ['bolacha recheada', 'nao_saudavel'], ['biscoito', 'nao_saudavel'], ['bolacha', 'nao_saudavel'],
+  ['sorvete', 'nao_saudavel'], ['bala', 'nao_saudavel'], ['doce', 'nao_saudavel'], ['bolo', 'nao_saudavel'],
+  ['pizza', 'nao_saudavel'], ['hamburguer', 'nao_saudavel'], ['linguica', 'nao_saudavel'],
+  ['bacon', 'nao_saudavel'], ['salsicha', 'nao_saudavel'], ['presunto', 'nao_saudavel'],
+  ['energetico', 'nao_saudavel'], ['cerveja', 'nao_saudavel'], ['pipoca doce', 'nao_saudavel'],
+  ['pipoca', 'nao_saudavel'], ['macarrao instantaneo', 'nao_saudavel'], ['miojo', 'nao_saudavel'],
+  ['sanduiche', 'nao_saudavel'], ['sundae', 'nao_saudavel'], ['balas', 'nao_saudavel'],
+  ['chips', 'nao_saudavel']
+].sort((a, b) => b[0].length - a[0].length);
+
+function findHealthMatch(text) {
+  const norm = normalizeText(text);
+  if (!norm) return null;
+  for (const [key, val] of HEALTH_DICT) {
+    if (norm.includes(key)) return val;
+  }
+  return null;
+}
+
+let selectedHealth = null;
+function setSelectedHealth(value, isAutoSuggestion) {
+  selectedHealth = value;
+  document.querySelectorAll('#healthRow .health-pill').forEach(pill => {
+    pill.classList.remove('selected', 'saudavel', 'neutro', 'nao_saudavel');
+    if (value && pill.dataset.health === value) pill.classList.add('selected', value);
+  });
+}
+
+document.querySelectorAll('#healthRow .health-pill').forEach(pill => {
+  pill.addEventListener('click', () => setSelectedHealth(pill.dataset.health, false));
+});
+
+/* ---------- Add item ---------- */
+function addItem(name, qty, unit, unitPrice, desc, group, sub, health) {
+  if (!name) return;
+  const safeQty = (qty === '' || qty === null || isNaN(qty)) ? 1 : parseFloat(qty);
+  const safePrice = (unitPrice === '' || unitPrice === null || isNaN(unitPrice)) ? 0 : parseFloat(unitPrice);
+  items.push({ name: name.trim(), qty: safeQty, unit: unit || '', unitPrice: safePrice, desc: desc || '', group, sub, checked: false, health: health || null });
+  openGroups[group] = true;
+  saveState();
+  render();
+}
+
+document.getElementById('toggleDesc').addEventListener('click', () => {
+  const wrap = document.getElementById('descWrap');
+  const isOpen = wrap.classList.toggle('open');
+  document.getElementById('toggleDesc').textContent = isOpen ? '− ocultar descrição' : '+ adicionar descrição (marca, observação...)';
+});
+
+document.getElementById('addBtn').addEventListener('click', () => {
+  const name = document.getElementById('itemName').value;
+  const qty = document.getElementById('itemQty').value;
+  const unit = document.getElementById('itemUnit').value;
+  const price = document.getElementById('itemPrice').value;
+  const desc = document.getElementById('itemDesc').value;
+  const catValue = document.getElementById('itemCategory').value;
+  if (!catValue || !name.trim()) return;
+  const { group, sub } = JSON.parse(catValue);
+  addItem(name, qty, unit, price, desc, group, sub, selectedHealth);
+  document.getElementById('itemName').value = '';
+  document.getElementById('itemQty').value = '';
+  document.getElementById('itemUnit').value = '';
+  document.getElementById('itemPrice').value = '';
+  document.getElementById('itemTotalPrice').value = '';
+  document.getElementById('itemDesc').value = '';
+  document.getElementById('descWrap').classList.remove('open');
+  document.getElementById('toggleDesc').textContent = '+ adicionar descrição (marca, observação...)';
+  itemPreview.classList.remove('show');
+  setSelectedHealth(null, false);
+  document.getElementById('addItemOverlay').classList.remove('open');
+});
+
+document.getElementById('itemName').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('itemQty').focus(); });
+document.getElementById('itemPrice').addEventListener('keydown', (e) => { if (e.key === 'Enter') document.getElementById('addBtn').click(); });
+
+/* ---------- Vínculo entre Preço unitário e Preço total ---------- */
+// Preenchendo um dos dois, o outro é calculado sozinho a partir da quantidade.
+const itemQtyInput = document.getElementById('itemQty');
+const itemPriceInput = document.getElementById('itemPrice');
+const itemTotalPriceInput = document.getElementById('itemTotalPrice');
+
+function currentQtyOrOne() {
+  const q = parseFloat(itemQtyInput.value);
+  return (isNaN(q) || q <= 0) ? 1 : q;
+}
+
+itemPriceInput.addEventListener('input', () => {
+  const unit = parseFloat(itemPriceInput.value);
+  if (isNaN(unit)) { itemTotalPriceInput.value = ''; return; }
+  const qty = currentQtyOrOne();
+  itemTotalPriceInput.value = (unit * qty).toFixed(2);
+});
+
+itemTotalPriceInput.addEventListener('input', () => {
+  const total = parseFloat(itemTotalPriceInput.value);
+  if (isNaN(total)) { itemPriceInput.value = ''; return; }
+  const qty = currentQtyOrOne();
+  itemPriceInput.value = (total / qty).toFixed(2);
+});
+
+itemQtyInput.addEventListener('input', () => {
+  // Se já existe um preço total definido, ele manda: recalcula o unitário.
+  // Senão, recalcula o total a partir do unitário.
+  const total = parseFloat(itemTotalPriceInput.value);
+  const unit = parseFloat(itemPriceInput.value);
+  const qty = currentQtyOrOne();
+  if (!isNaN(total) && itemTotalPriceInput === document.activeElement) {
+    itemPriceInput.value = (total / qty).toFixed(2);
+  } else if (!isNaN(unit)) {
+    itemTotalPriceInput.value = (unit * qty).toFixed(2);
+  } else if (!isNaN(total)) {
+    itemPriceInput.value = (total / qty).toFixed(2);
+  }
+});
+
+/* ---------- Add item modal (aberto pelo botão +) ---------- */
+const addItemOverlay = document.getElementById('addItemOverlay');
+document.getElementById('fabAdd').addEventListener('click', () => {
+  addItemOverlay.classList.add('open');
+  setTimeout(() => document.getElementById('itemName').focus(), 200);
+});
+document.getElementById('addItemClose').addEventListener('click', () => {
+  addItemOverlay.classList.remove('open');
+});
+addItemOverlay.addEventListener('click', (e) => {
+  if (e.target === addItemOverlay) addItemOverlay.classList.remove('open');
+});
+
+/* ---------- Busca geral de itens ---------- */
+const searchWrap = document.getElementById('searchWrap');
+const searchInput = document.getElementById('searchInput');
+document.getElementById('searchToggle').addEventListener('click', () => {
+  const isOpen = searchWrap.classList.toggle('open');
+  if (isOpen) {
+    searchInput.focus();
+  } else {
+    searchInput.value = '';
+    searchQuery = '';
+    render();
+  }
+});
+searchInput.addEventListener('input', (e) => {
+  searchQuery = e.target.value;
+  renderGroups();
+});
+
+document.getElementById('budgetInput').addEventListener('input', (e) => {
+  budget = parseFloat(e.target.value) || 0;
+  saveState();
+  render();
+});
+
+document.getElementById('clearChecked').addEventListener('click', () => {
+  items = items.filter(it => !it.checked);
+  openItems = {};
+  saveState();
+  render();
+});
+
+document.getElementById('uncheckAll').addEventListener('click', () => {
+  items.forEach(it => it.checked = false);
+  saveState();
+  render();
+});
+
+/* ---------- Export ---------- */
+function buildExportText() {
+  const now = new Date();
+  const monthNames = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const dateLabel = `${monthNames[now.getMonth()]} de ${now.getFullYear()}`;
+  const spent = items.reduce((s, it) => s + itemTotal(it), 0);
+  const remaining = budget - spent;
+
+  let lines = [];
+  lines.push(`LISTA DE COMPRAS — ${dateLabel.toUpperCase()}`);
+  lines.push(`Orçamento previsto: ${formatBRL(budget)}`);
+  lines.push(`Total gasto: ${formatBRL(spent)}`);
+  lines.push(`Restante: ${formatBRL(remaining)}`);
+  lines.push('');
+
+  Object.keys(CATEGORY_TREE).forEach(group => {
+    const subs = CATEGORY_TREE[group];
+    const groupItems = items.filter(it => it.group === group);
+    if (groupItems.length === 0) return;
+    const groupTotal = groupItems.reduce((s, it) => s + itemTotal(it), 0);
+    lines.push(`${group.toUpperCase()} — ${formatBRL(groupTotal)}`);
+
+    const printItem = (it) => {
+      const qty = (it.qty === null || it.qty === undefined || isNaN(it.qty)) ? 1 : it.qty;
+      const unit = it.unit || '';
+      const unitPrice = (it.unitPrice === null || it.unitPrice === undefined || isNaN(it.unitPrice)) ? 0 : it.unitPrice;
+      const mark = it.checked ? '[x]' : '[ ]';
+      const healthTag = it.health && HEALTH_META[it.health] ? ` (${HEALTH_META[it.health].label})` : '';
+      let line = `  ${mark} ${it.name}${healthTag} — ${formatQty(qty)}${unit ? ' ' + unit : ''} x ${formatBRL(unitPrice)} = ${formatBRL(itemTotal(it))}`;
+      if (it.desc) line += ` (${it.desc})`;
+      lines.push(line);
+    };
+
+    if (subs.length === 1 && subs[0] === null) {
+      groupItems.forEach(printItem);
+    } else {
+      subs.forEach(sub => {
+        const subItems = groupItems.filter(it => it.sub === sub);
+        if (subItems.length === 0) return;
+        const subTotal = subItems.reduce((s, it) => s + itemTotal(it), 0);
+        lines.push(`  ${sub} — ${formatBRL(subTotal)}`);
+        subItems.forEach(printItem);
+      });
+    }
+    lines.push('');
+  });
+
+  return lines.join('\n');
+}
+
+document.getElementById('exportBtn').addEventListener('click', () => {
+  if (items.length === 0) return;
+  const text = buildExportText();
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const filename = `lista-compras-${now.getFullYear()}-${mm}.txt`;
+
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+  const spent = items.reduce((s, it) => s + itemTotal(it), 0);
+  const label = monthLabel(now);
+  const existingIdx = history.findIndex(h => h.label === label);
+  if (existingIdx >= 0) history[existingIdx] = { label, spent, timestamp: now.toISOString() };
+  else history.push({ label, spent, timestamp: now.toISOString() });
+  if (history.length > 12) history = history.slice(-12);
+  saveHistory();
+  render();
+});
+
+/* ---------- Tabs ---------- */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab === 'lista' ? 'tabLista' : 'tabAnalise').classList.add('active');
+  });
+});
+
+/* ---------- Floating calculator ---------- */
+const fabCalc = document.getElementById('fabCalc');
+const calcOverlay = document.getElementById('calcOverlay');
+const calcClose = document.getElementById('calcClose');
+const calcExpr = document.getElementById('calcExpr');
+const calcResult = document.getElementById('calcResult');
+let calcExpression = '';
+
+fabCalc.addEventListener('click', () => calcOverlay.classList.add('open'));
+calcClose.addEventListener('click', () => calcOverlay.classList.remove('open'));
+calcOverlay.addEventListener('click', (e) => { if (e.target === calcOverlay) calcOverlay.classList.remove('open'); });
+
+function calcUpdateDisplay() {
+  calcExpr.textContent = calcExpression || '\u00A0';
+  try {
+    const safeExpr = calcExpression.replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+    if (safeExpr.trim() === '') { calcResult.textContent = '0'; }
+    else if (/^[0-9+\-*/().\s]+$/.test(safeExpr)) {
+      const val = Function('"use strict"; return (' + safeExpr + ')')();
+      if (isFinite(val)) calcResult.textContent = formatBRL(val).replace('R$', '').trim();
+    }
+  } catch (e) {}
+}
+
+document.querySelectorAll('.calc-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const k = btn.dataset.k;
+    if (k === 'C') calcExpression = '';
+    else if (k === '=') {
+      try {
+        const safeExpr = calcExpression.replace(/×/g, '*').replace(/÷/g, '/').replace(/,/g, '.');
+        const val = Function('"use strict"; return (' + safeExpr + ')')();
+        calcExpression = String(val).replace('.', ',');
+      } catch (e) { calcExpression = ''; }
+    } else calcExpression += k;
+    calcUpdateDisplay();
+  });
+});
+
+document.getElementById('calcSendToPrice').addEventListener('click', () => {
+  const raw = calcResult.textContent.replace(/\./g, '').replace(',', '.').trim();
+  const val = parseFloat(raw);
+  if (!isNaN(val)) {
+    document.getElementById('itemPrice').value = val.toFixed(2);
+    itemPriceInput.dispatchEvent(new Event('input'));
+  }
+  calcOverlay.classList.remove('open');
+  addItemOverlay.classList.add('open');
+  document.getElementById('itemName').focus();
+});
+
+/* ---------- Init ---------- */
+populateCategorySelect();
+// Os dados só são carregados depois do login (ver script do Firebase abaixo).
+resetVisualState();
+</script>
+
+<!-- ---------- Firebase: Authentication (Google) + Firestore (dados por UID) ---------- -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyA-_cKw0clartrf2dVtG4bNRBYNLx0FCB8",
+    authDomain: "lista-de-compras-8be24.firebaseapp.com",
+    projectId: "lista-de-compras-8be24",
+    storageBucket: "lista-de-compras-8be24.firebasestorage.app",
+    messagingSenderId: "215780200297",
+    appId: "1:215780200297:web:701b9a05cd41e09efbf7f8",
+    measurementId: "G-BQLSQRGYT8"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  auth.languageCode = 'pt';
+  const db = getFirestore(app);
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+
+  const loginBtn = document.getElementById('googleLoginBtn');
+  const loginLabel = document.getElementById('googleLoginLabel');
+  const loginMsg = document.getElementById('loginMsg');
+  const userAvatar = document.getElementById('userAvatar');
+  const syncError = document.getElementById('syncError');
+
+  // Chave de controle da migração: guarda o UID da conta que recebeu os dados
+  // antigos do localStorage, pra que eles nunca sejam copiados pra uma 2ª conta.
+  const MIGRATION_KEY = 'shopping-list-migrated-to-uid';
+
+  /* ---------- Estado da sessão na nuvem ---------- */
+  let currentUid = null;     // UID do usuário cujos dados estão carregados na tela
+  let dataReady = false;     // só permite gravar depois que os dados do usuário foram carregados
+  let saveTimer = null;
+  let savePending = false;
+  let saveInFlight = null;   // Promise da gravação em andamento
+  let lastDataError = null;  // mensagem de erro a mostrar na tela de login
+  let authGeneration = 0;    // evita que uma resposta atrasada de um usuário caia na tela de outro
+  const SAVE_DELAY_MS = 800; // agrupa várias alterações seguidas numa única gravação
+
+  function userDocRef(uid) {
+    return doc(db, 'users', uid, 'appData', 'main');
+  }
+
+  async function writeNow() {
+    if (!dataReady || !currentUid) return;
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    if (!savePending) return;
+    savePending = false;
+    const uid = currentUid;
+    const payload = { ...window.appData.getPersistedState(), schemaVersion: 1, updatedAt: serverTimestamp() };
+    const p = setDoc(userDocRef(uid), payload)
+      .then(() => { syncError.classList.remove('show'); })
+      .catch(err => {
+        console.error('Erro ao salvar no Firestore', err);
+        syncError.classList.add('show');
+        // tenta de novo depois, se o mesmo usuário ainda estiver logado
+        if (currentUid === uid) { savePending = true; saveTimer = setTimeout(writeNow, 5000); }
+      });
+    saveInFlight = p;
+    await p;
+    if (saveInFlight === p) saveInFlight = null;
+  }
+
+  // Chamado por saveState()/saveHistory() a cada alteração.
+  function scheduleSave() {
+    if (!dataReady || !currentUid) return;
+    savePending = true;
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(writeNow, SAVE_DELAY_MS);
+  }
+
+  async function flushSave() {
+    if (savePending) await writeNow();
+    else if (saveInFlight) await saveInFlight;
+  }
+
+  // Se a aba for escondida/fechada, grava o que estiver pendente na hora.
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushSave();
+  });
+  window.addEventListener('pagehide', () => { flushSave(); });
+
+  /* ---------- Carregamento dos dados do usuário ---------- */
+  async function loadUserData(uid) {
+    const ref = userDocRef(uid);
+    const snap = await getDoc(ref);
+    if (snap.exists()) return snap.data();
+
+    // Primeiro acesso desta conta: migração única e segura do localStorage.
+    let migratedTo = null;
+    try { migratedTo = localStorage.getItem(MIGRATION_KEY); } catch (e) {}
+    const legacy = migratedTo ? null : window.appData.readLegacyLocalData();
+    const initial = legacy || { items: [], budget: 1000, history: [] };
+    await setDoc(ref, { ...initial, schemaVersion: 1, updatedAt: serverTimestamp() });
+    if (legacy) {
+      try { localStorage.setItem(MIGRATION_KEY, uid); } catch (e) {}
+      console.info('Dados do localStorage migrados para o Firestore deste usuário.');
+    }
+    return initial;
+  }
+
+  function setLoginMsg(text, isError) {
+    loginMsg.textContent = text || '';
+    loginMsg.className = 'login-msg' + (isError ? ' error' : '');
+  }
+
+  function setLoginButton(enabled, label) {
+    loginBtn.disabled = !enabled;
+    loginLabel.textContent = label;
+  }
+
+  function friendlyAuthError(err) {
+    const code = err && err.code ? err.code : '';
+    if (code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request') return 'Login cancelado.';
+    if (code === 'auth/popup-blocked') return 'O navegador bloqueou a janela do Google. Permita pop-ups pra este site e tente de novo.';
+    if (code === 'auth/unauthorized-domain') return 'Este endereço não está autorizado no Firebase (Authentication → Settings → Authorized domains).';
+    if (code === 'auth/operation-not-allowed') return 'O login com Google não está ativado no Firebase (Authentication → Sign-in method).';
+    if (code === 'auth/operation-not-supported-in-this-environment') return 'Abra o app por um endereço http(s), não direto do arquivo (file://).';
+    if (code === 'auth/network-request-failed') return 'Sem conexão. Verifique a internet e tente de novo.';
+    return 'Não foi possível entrar. ' + (code ? '(' + code + ')' : '');
+  }
+
+  function friendlyDataError(err) {
+    const code = err && err.code ? err.code : '';
+    if (code === 'permission-denied') return 'Sem permissão pra acessar seus dados. Confira as regras do Firestore.';
+    if (code === 'unavailable') return 'Sem conexão com o servidor. Verifique a internet e tente de novo.';
+    return 'Não foi possível carregar sua lista. ' + (code ? '(' + code + ')' : '');
+  }
+
+  function showUser(user) {
+    const name = user.displayName || 'Usuário';
+    document.getElementById('userName').textContent = name;
+    document.getElementById('userEmail').textContent = user.email || '';
+    userAvatar.innerHTML = '';
+    if (user.photoURL) {
+      const img = document.createElement('img');
+      img.src = user.photoURL;
+      img.alt = '';
+      img.referrerPolicy = 'no-referrer';
+      img.className = 'user-avatar';
+      img.onerror = () => { userAvatar.textContent = name.charAt(0).toUpperCase(); };
+      userAvatar.appendChild(img);
+    } else {
+      userAvatar.textContent = name.charAt(0).toUpperCase();
+    }
+  }
+
+  function clearUser() {
+    document.getElementById('userName').textContent = '';
+    document.getElementById('userEmail').textContent = '';
+    userAvatar.innerHTML = '';
+    syncError.classList.remove('show');
+  }
+
+  // Botão "Continuar com Google" → abre o pop-up do Google
+  loginBtn.addEventListener('click', async () => {
+    setLoginButton(false, 'Abrindo o Google...');
+    setLoginMsg('');
+    try {
+      await signInWithPopup(auth, provider);
+      // onAuthStateChanged cuida de carregar os dados e mostrar o app
+    } catch (err) {
+      console.error('Erro no login com Google', err);
+      setLoginMsg(friendlyAuthError(err), true);
+      setLoginButton(true, 'Continuar com Google');
+    }
+  });
+
+  // Botão "Sair" → grava o que estiver pendente e faz logout (localStorage NÃO é tocado)
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    try {
+      await flushSave();
+      await signOut(auth);
+    } catch (err) {
+      console.error('Erro ao sair', err);
+      alert('Não foi possível sair. Tente novamente.');
+    }
+  });
+
+  // Controla tudo conforme o estado de autenticação
+  onAuthStateChanged(auth, async (user) => {
+    const gen = ++authGeneration;
+
+    // Qualquer troca de usuário: bloqueia gravações e limpa a tela primeiro.
+    dataReady = false;
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    savePending = false;
+    currentUid = null;
+    window.appData.requestSave = null;
+    document.documentElement.classList.remove('signed-in');
+    window.appData.resetVisualState();
+    clearUser();
+
+    if (!user) {
+      // Mostra o erro de carregamento (se houver) depois do signOut automático.
+      setLoginMsg(lastDataError || '', !!lastDataError);
+      lastDataError = null;
+      setLoginButton(true, 'Continuar com Google');
+      return;
+    }
+
+    // Usuário autenticado: carrega os dados dele do Firestore antes de mostrar o app.
+    setLoginButton(false, 'Carregando sua lista...');
+    setLoginMsg('');
+    try {
+      const data = await loadUserData(user.uid);
+      if (gen !== authGeneration) return; // o usuário mudou enquanto carregava
+      currentUid = user.uid;
+      window.appData.loadState(data);
+      showUser(user);
+      dataReady = true;
+      window.appData.requestSave = scheduleSave;
+      document.documentElement.classList.add('signed-in');
+      setLoginButton(true, 'Continuar com Google');
+    } catch (err) {
+      if (gen !== authGeneration) return;
+      console.error('Erro ao carregar dados do Firestore', err);
+      setLoginMsg(friendlyDataError(err), true);
+      // Desconecta pra não deixar o app aberto sem os dados (e sem risco de sobrescrever a nuvem).
+      lastDataError = friendlyDataError(err);
+      try { await signOut(auth); } catch (e) {}
+    }
+  });
+</script>
+
+</body>
+</html>
